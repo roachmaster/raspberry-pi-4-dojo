@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-operator-file-uploader
+  namespace: spark-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-operator-file-uploader
+  template:
+    metadata:
+      labels:
+        app: spark-operator-file-uploader
+    spec:
+      containers:
+        - name: spark-operator-file-uploader
+          image: your-docker-registry/spark-operator-file-uploader:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_CONFIG_LOCATION
+              value: /mnt/application.properties
+          volumeMounts:
+            - name: spark-data
+              mountPath: /mnt
+              readOnly: false
+      volumes:
+        - name: spark-data
+          persistentVolumeClaim:
+            claimName: spark-pvc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spark-operator-file-uploader-config
+  namespace: spark-operator
+data:
+  application.properties: |
+    input.dir.path=/mnt/data/input
+    jar.dir.path=/mnt/data/jar
+    http.address=http://so-file-uploader:8080
+    http.host=so-file-uploader

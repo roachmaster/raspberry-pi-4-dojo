@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: spark-operator-file-uploader-ingress
+  namespace: spark-operator
+spec:
+  rules:
+    - host: so-file-uploader
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: spark-operator-file-uploader-service
+                port:
+                  number: 8080
